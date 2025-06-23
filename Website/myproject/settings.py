@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 import dj_database_url
 
+print("DJANGO SETTINGS LOADED!!!")
+ALLOWED_HOSTS = ['*']
+
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 # Hardcode for Render deployment
