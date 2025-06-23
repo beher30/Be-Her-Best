@@ -4,7 +4,7 @@ import dj_database_url
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-# Allow both the specific Render domain and all .onrender.com subdomains
+# Hardcode for Render deployment
 ALLOWED_HOSTS = ['be-her-best-1.onrender.com', '.onrender.com']
 
 # Static files (CSS, JavaScript, Images)
