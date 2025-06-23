@@ -3,6 +3,9 @@ from pathlib import Path
 import dj_database_url
 
 print("DJANGO SETTINGS LOADED!!! (DEBUG)")
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 ALLOWED_HOSTS = ['*']
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-secret-key')
