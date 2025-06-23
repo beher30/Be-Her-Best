@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load static %}
+{% load myapp_filters %}
+
+{% block title %}Courses{% endblock %}
+
+{% block extra_css %}
+<style>
+.course-container {
+    padding: 30px 0;
+}
+
+.course-card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.course-thumbnail {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.course-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.course-description {
+    color: #666;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.course-meta {
+    display: flex;
+    justify-content: space-between;
+    color: #777;
+    font-size: 14px;
+    margin-top: auto;
+}
+
+.tier-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    z-index: 2;
+}
+
+.tier-regular {
+    background-color: #2196F3;
+}
+
+.tier-vip {
+    background-color: #FFC107;
+}
+
+.tier-diamond {
+    background-color: #9C27B0;
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 3;
+}
+
+.lock-overlay i {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.lock-overlay .upgrade-message {
+    font-size: 16px;
+    text-align: center;
+    padding: 0 20px;
+}
+
+.blur-thumbnail {
+    filter: blur(5px);
+}
+
+.membership-banner {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+.membership-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.membership-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: white;
+    margin-right: 15px;
+}
+
+.badge-regular {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.badge-vip {
+    background: linear-gradient(135deg, #FFC107 0%, #FFA000 100%);
+}
+
+.badge-diamond {
+    background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+}
+
+.upgrade-btn {
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: none;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.upgrade-btn:hover {
+    background: linear-gradient(135deg, #388E3C 0%, #2E7D32 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.course-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    color: #666;
+}
+
+.stat-item i {
+    margin-right: 5px;
+}
+
+.course-progress {
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    margin-top: 15px;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
+}
+
+@media (max-width: 768px) {
+    .membership-info {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .membership-badge {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container course-container">
+    <!-- Membership Banner -->
+    <div class="membership-banner">
+        <div class="membership-info">
+            <div>
+                <h1 class="mb-3">Course Library</h1>
+                <p class="text-muted mb-0">Explore our collection of high-quality courses</p>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="d-flex align-items-center">
+                <span class="membership-badge {% if user.membership_tier == 'diamond' %}badge-diamond{% elif user.membership_tier == 'vip' %}badge-vip{% else %}badge-regular{% endif %}">
+                    {{ user.membership_tier|title }} Member
+                </span>
+                {% if user.membership_tier != 'diamond' %}
+                <a href="{% url 'upgrade_membership' %}" class="upgrade-btn">Upgrade Now</a>
+                {% endif %}
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="upgrade-btn">Sign In to Start Learning</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Course Grid -->
+    <div class="row g-4">
+        {% for course in courses %}
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="course-card">
+                <div class="course-thumbnail" style="background-image: url('{{ course.thumbnail.url }}')">
+                    <span class="tier-badge {% if course.required_tier == 'diamond' %}tier-diamond{% elif course.required_tier == 'vip' %}tier-vip{% else %}tier-regular{% endif %}">
+                        {{ course.required_tier|title }}
+                    </span>
+                    {% if not user|has_access:course %}
+                    <div class="lock-overlay">
+                        <i class="fas fa-lock"></i>
+                        <p class="upgrade-message">Upgrade to {{ course.required_tier|title }} to unlock</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="course-content">
+                    <h3 class="course-title">{{ course.title }}</h3>
+                    <p class="course-description">{{ course.description|truncatewords:20 }}</p>
+                    <div class="course-meta">
+                        <div class="course-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-video"></i>
+                                <span>{{ course.videos.count }} videos</span>
+                            </div>
+                            {% if user|has_started:course %}
+                            <div class="stat-item">
+                                <i class="fas fa-chart-line"></i>
+                                <span>{{ user|completed_videos_count:course|div:course.videos.count|mul:100 }}% complete</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if user|has_access:course %}
+                    <a href="{% url 'video_player' course.first_video.id %}" class="btn btn-primary mt-3 w-100">
+                        {% if user|has_started:course %}Continue Learning{% else %}Start Course{% endif %}
+                    </a>
+                    {% else %}
+                    <a href="{% url 'upgrade_membership' %}" class="btn btn-warning mt-3 w-100">Upgrade to Unlock</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

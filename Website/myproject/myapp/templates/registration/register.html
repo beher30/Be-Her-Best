@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Welcome Modal -->
+<div id="welcomeModal" class="modal-overlay">
+    <div class="modal-content">
+        <h2>እንካን በሰላም መጣቹ።</h2>
+        <p>Course Packages</p>
+        <ul>
+            <li>Dimond(ለሙሉ ኮርስ) 500 ብር ከነ ተጨማሪ ቦነስ</li>
+            <li>VIP (ግማሽ ኮርስ) 100 ብር </li>
+            <li>Regular (የምዝገባ ) ነፃ</li>
+        </ul>
+        <p>ከመመዝገባቹ በፊት ማድረግ ያለችሁ </p>
+        <ul>
+            <li>የከፈላቹበት screenshot ኣያይዛቹ ላኩት።</li>
+            <li></li>
+            <li>Regular (የምዝገባ ) ነፃ</li>
+            <li>በተወሰነ ሰኣት የፈለጋችሁት ኮርስ ይከፈታል።</li>
+        </ul>
+        
+        <button id="continueBtn" class="modal-button">Continue</button>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 col-sm-11">
+            <div class="register-card">
+                <div class="card-header text-center">
+                    <h3 class="mb-1">በዚ ኣካውንት"0909090909" ምትፈልጉትን ኮርስ ብር ኣስገብታችሁ</h3>
+                    <h3 class="mb-1">screenshot ኣያይዛቹ ላኩት። በ ተወሰነ ሰኣት የፈለጋችሁት ኮርስ ይከፈታል።  </h3><br>
+                    <p class="text-muted">Dimond(ለሙሉ ኮርስ) 500 ብር ከነ ተጨማሪ ቦነስ</p>
+                    <p class="text-muted">VIP (ግማሽ ኮርስ) 100 ብር </p>
+                    <p class="text-muted">Regular (የምዝገባ ) ነፃ</p>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                            {% if field.name != 'agree_to_terms' %}
+                                <div class="form-group mb-4">
+                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    <div class="input-wrapper">
+                                        {{ field }}
+                                    </div>
+                                    {% if field.help_text %}
+                                        <small class="form-text">{{ field.help_text }}</small>
+                                    {% endif %}
+                                    {% for error in field.errors %}
+                                        <div class="error-message">
+                                            <span><i class="fas fa-exclamation-circle me-2"></i>{{ error }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Terms and Conditions Checkbox -->
+                        <div class="form-group mb-4">
+                            <div class="terms-checkbox">
+                                {{ form.agree_to_terms }}
+                                <label for="{{ form.agree_to_terms.id_for_label }}" class="terms-label">
+                                    I agree to the <a href="{% url 'terms' %}" class="terms-link" target="_blank">Terms and Conditions</a>
+                                </label>
+                            </div>
+                            {% for error in form.agree_to_terms.errors %}
+                                <div class="error-message mt-2">
+                                    <span><i class="fas fa-exclamation-circle me-2"></i>{{ error }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn-register">
+                                Create Account
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Already have an account? 
+                            <a href="{% url 'login' %}" class="link-primary">Sign in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Modern, Minimalistic Register Form Styling */
+    .register-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .register-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 35px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card-header {
+        padding: 2rem 1.5rem 1.5rem;
+        background: #ffffff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-header h3 {
+        font-weight: 600;
+        color: #333;
+        font-size: 1.5rem;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .input-wrapper {
+        position: relative;
+    }
+    
+    /* Style Django form inputs */
+    .input-wrapper input,
+    .input-wrapper select,
+    .input-wrapper textarea {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        color: #333;
+        background-color: #f9fafb;
+        transition: all 0.2s ease;
+    }
+    
+    .input-wrapper input:focus,
+    .input-wrapper select:focus,
+    .input-wrapper textarea:focus {
+        outline: none;
+        border-color: #4361ee;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+    
+    .form-text {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    .error-message {
+        background-color: #fff5f5;
+        color: #e53e3e;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        border-left: 3px solid #e53e3e;
+    }
+    
+    /* Terms and Conditions Checkbox Styling */
+    .terms-checkbox {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 0.5rem;
+    }
+    
+    .terms-checkbox input[type="checkbox"] {
+        margin-top: 0.25rem;
+        margin-right: 0.5rem;
+        width: auto;
+    }
+    
+    .terms-label {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 0;
+        cursor: pointer;
+    }
+    
+    .terms-link {
+        color: #4361ee;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+    
+    .terms-link:hover {
+        color: #2a46c4;
+        text-decoration: underline;
+    }
+    
+    .btn-register {
+        display: block;
+        width: 100%;
+        padding: 0.9rem 1.5rem;
+        background: linear-gradient(to right, #4361ee, #3a56d4);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-register:hover {
+        background: linear-gradient(to right, #3a56d4, #2a46c4);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    }
+    
+    .link-primary {
+        color: #4361ee;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .link-primary:hover {
+        color: #2a46c4;
+        text-decoration: underline;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .container {
+            padding: 0 1rem;
+        }
+        
+        .btn-register {
+            padding: 0.8rem 1.25rem;
+        }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-content h2 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+    }
+
+    .modal-content p {
+        color: #555;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .modal-content ul {
+        text-align: left;
+        margin: 1rem 0 2rem;
+        padding-left: 1.5rem;
+    }
+
+    .modal-content li {
+        color: #555;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .modal-button {
+        background: linear-gradient(to right, #4361ee, #3a56d4);
+        color: white;
+        border: none;
+        padding: 0.9rem 2.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-button:hover {
+        background: linear-gradient(to right, #3a56d4, #2a46c4);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.25);
+    }
+
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            padding: 1.5rem;
+        }
+        
+        .modal-content h2 {
+            font-size: 1.5rem;
+        }
+        
+        .modal-content p {
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('welcomeModal');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        // Show modal on page load
+        modal.style.display = 'flex';
+        
+        // Hide modal when continue button is clicked
+        continueBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    });
+</script>
+{% endblock %}
