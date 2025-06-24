@@ -2266,29 +2266,24 @@ def video_list(request, video_id=None):
         return redirect('index')
 
 def free_course(request):
-    """View for the free course page that shows regular videos without requiring login"""
-    # Get all free videos (non-premium content) from both Video and MegaVideo models
-    from .models import MegaVideo
+    """View for the free course page that shows regular videos without requiring login."""
+    from .models import Video, MegaVideo
+    from itertools import chain
+    from operator import attrgetter
     
-    # Get free videos from MegaVideo model
-    free_mega_videos = MegaVideo.objects.filter(is_free=True).order_by('-created_at')
-    
-    # Log the number of free videos found for debugging
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Found {len(free_mega_videos)} free MEGA videos")
-    for video in free_mega_videos:
-        logger.info(f"Free MEGA video: {video.title}, is_free={video.is_free}")
-    
-    # Force refresh of the videos from the database
-    from django.db import connection
-    connection.close()
-    
-    # Get the videos again after refreshing the connection
-    free_mega_videos = MegaVideo.objects.filter(is_free=True).order_by('-created_at')
-    
+    # Get all free videos from both Video and MegaVideo models
+    free_videos = Video.objects.filter(is_free=True)
+    free_mega_videos = MegaVideo.objects.filter(is_free=True)
+
+    # Combine the two querysets and sort them by creation date
+    all_free_videos = sorted(
+        chain(free_videos, free_mega_videos),
+        key=attrgetter('created_at'),
+        reverse=True
+    )
+
     context = {
-        'videos': free_mega_videos,
+        'videos': all_free_videos,
         'title': 'Free Course',
         'description': 'Access our free video content without registration',
     }
