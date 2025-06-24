@@ -1,18 +1,25 @@
 services:
   - type: web
-    name: Be-Her-Best
+    name: myproject
     env: python
     plan: free
     branch: main
-    buildCommand: "pip install -r requirements.txt && python Website/myproject/manage.py collectstatic --noinput"
+    buildCommand: "./build.sh"
     startCommand: "gunicorn myproject.wsgi"
-    rootDir: Website/myproject
+    rootDir: .
     envVars:
-      - key: DJANGO_SECRET_KEY
-        sync: false
-      - key: DEBUG
-        value: 'False'
-      - key: ALLOWED_HOSTS
-        value: .onrender.com
       - key: DATABASE_URL
-        sync: false 
+        fromDatabase:
+          name: myproject-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: PYTHON_VERSION
+        value: 3.11.4
+databases:
+  - name: myproject-db
+    databaseName: myproject
+    user: myproject
+    plan: free 
