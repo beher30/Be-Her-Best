@@ -23,3 +23,14 @@ DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
 } 
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+
+INSTALLED_APPS = [
+    # ... other apps ...
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # ... your apps ...
+]

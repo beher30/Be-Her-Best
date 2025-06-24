@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,12 +26,29 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8@hu4#!khl262xuu)$#b+!jk%k0+zgjxs0fm4s761wk56e$e^('
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-8@hu4#!khl262xuu)$#b+!jk%k0+zgjxs0fm4s761wk56e$e^(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Render automatically sets NODE_ENV to 'production'
+IS_PRODUCTION = os.environ.get('NODE_ENV') == 'production'
 
-ALLOWED_HOSTS = []
+DEBUG = not IS_PRODUCTION
+
+# Set ALLOWED_HOSTS based on environment
+if IS_PRODUCTION:
+    # Get allowed hosts from environment variable, split by comma, and clean up
+    allowed_hosts_str = os.environ.get('ALLOWED_HOSTS', '')
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_str.split(',') if host.strip()]
+    
+    # Ensure the render.com domain is present
+    render_hostname = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if render_hostname and render_hostname not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(render_hostname)
+else:
+    # For local development
+    ALLOWED_HOSTS = ['*']
+
+print(f"ALLOWED_HOSTS (DEBUG): {ALLOWED_HOSTS}")
 
 
 # Application definition
@@ -48,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,6 +105,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# Database configuration for Render
+if IS_PRODUCTION:
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url:
+        DATABASES['default'] = dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
 
 
 # Password validation
@@ -127,6 +156,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'myapp/static'),
 ]
+
+# Enable WhiteNoise storage for static files
+if IS_PRODUCTION:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (Videos, Images, etc)
 MEDIA_URL = '/media/'

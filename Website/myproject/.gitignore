@@ -1,5 +1,5 @@
 # Ignore credentials and secrets
-credentials/
+credentials/ 
 # Ignore Python cache
 __pycache__/
 *.pyc
