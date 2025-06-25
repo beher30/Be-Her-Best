@@ -2267,7 +2267,6 @@ def video_list(request, video_id=None):
 
 def free_course(request):
     """View for the free course page that shows regular videos without requiring login."""
-    from .models import Video, MegaVideo
     from itertools import chain
     from operator import attrgetter
     

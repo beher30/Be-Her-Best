@@ -724,22 +724,42 @@ class VideoContent(models.Model):
             return f"{hours}:{minutes:02d}:{seconds:02d}"
         return f"{minutes:02d}:{seconds:02d}"
 
+    def get_stream_url(self, user):
+        # Placeholder for getting a secure stream URL
+        # This should be implemented based on your video hosting provider
+        return None
+
 
 class VideoProgress(models.Model):
-    """Model to track video viewing progress"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    video = models.ForeignKey('MegaVideo', on_delete=models.CASCADE, related_name='progress')
-    current_time = models.FloatField(default=0)  # Current position in seconds
+    """Model to track user progress on videos"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='video_progress')
+    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='progress_records', null=True, blank=True)
+    mega_video = models.ForeignKey(MegaVideo, on_delete=models.CASCADE, related_name='progress_records', null=True, blank=True)
+    progress = models.FloatField(default=0, help_text='Progress percentage (0-100)')
+    current_time = models.FloatField(default=0, help_text='Current time in seconds')
     duration = models.FloatField(default=0)  # Total duration in seconds
     completed = models.BooleanField(default=False)
     last_watched = models.DateTimeField(auto_now=True)
-    
+
     class Meta:
-        unique_together = ('user', 'video')
-        verbose_name_plural = 'Video Progress'
-    
+        ordering = ['-last_watched']
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    models.Q(video__isnull=False, mega_video__isnull=True) |
+                    models.Q(video__isnull=True, mega_video__isnull=False)
+                ),
+                name='myapp_videoprogress_only_one_video_type'
+            )
+        ]
+
     def __str__(self):
-        return f"{self.user.username} - {self.video.title} - {self.current_time:.1f}s"
+        video_title = ""
+        if self.video:
+            video_title = self.video.title
+        elif self.mega_video:
+            video_title = self.mega_video.title
+        return f"{self.user.username}'s progress on {video_title}"
 
 
 class VideoStreamSession(models.Model):
@@ -776,16 +796,3 @@ class VideoAnalytics(models.Model):
 
     class Meta:
         ordering = ['timestamp']
-
-class VideoProgress(models.Model):
-    """Model to track user progress on videos"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='video_progress')
-    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='progress')
-    progress = models.FloatField(default=0, help_text='Progress percentage (0-100)')
-    current_time = models.FloatField(default=0, help_text='Current time in seconds')
-    completed = models.BooleanField(default=False)
-    last_watched = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-last_watched']
-        unique_together = ('user', 'video')
