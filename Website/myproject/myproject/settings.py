@@ -29,8 +29,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-8@hu4#!khl262xuu)$#b+!jk%k0+zgjxs0fm4s761wk56e$e^(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Render automatically sets NODE_ENV to 'production'
-IS_PRODUCTION = os.environ.get('NODE_ENV') == 'production'
+# Render automatically sets the RENDER environment variable
+IS_PRODUCTION = os.environ.get('RENDER') == 'true'
 
 DEBUG = not IS_PRODUCTION
 
