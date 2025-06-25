@@ -112,12 +112,14 @@ DATABASES = {
 if IS_PRODUCTION:
     database_url = os.environ.get('DATABASE_URL')
     print(f"--- In settings.py: DATABASE_URL is '{database_url}' ---")
-    if database_url:
-        DATABASES['default'] = dj_database_url.config(
-            default=database_url,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+    if not database_url:
+        raise ValueError("DATABASE_URL environment variable is not set in the production environment. Please set it in your Render dashboard.")
+
+    DATABASES['default'] = dj_database_url.config(
+        # Get database configuration from DATABASE_URL environment variable
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 
 
 # Password validation
