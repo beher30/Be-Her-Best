@@ -34,6 +34,8 @@ IS_PRODUCTION = os.environ.get('RENDER') == 'true'
 
 DEBUG = not IS_PRODUCTION
 
+print(f"--- In settings.py: IS_PRODUCTION is {IS_PRODUCTION} ---")
+
 # Set ALLOWED_HOSTS based on environment
 if IS_PRODUCTION:
     # Get allowed hosts from environment variable, split by comma, and clean up
@@ -109,6 +111,7 @@ DATABASES = {
 # Database configuration for Render
 if IS_PRODUCTION:
     database_url = os.environ.get('DATABASE_URL')
+    print(f"--- In settings.py: DATABASE_URL is '{database_url}' ---")
     if database_url:
         DATABASES['default'] = dj_database_url.config(
             default=database_url,
@@ -154,7 +157,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'myapp/static'),
 ]
 
 # Enable WhiteNoise storage for static files
