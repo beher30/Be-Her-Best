@@ -10,4 +10,4 @@ pip install -r ../../requirements.txt
 
 python manage.py collectstatic --noinput
 python manage.py migrate 
-python Website/myapp/create_superuser.py 
+python myapp/create_superuser.py 
