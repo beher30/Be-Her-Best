@@ -131,3 +131,6 @@ print(f"DEBUG: {DEBUG}", file=sys.stderr)
 print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}", file=sys.stderr)
 db_engine = DATABASES['default']['ENGINE']
 print(f"DATABASE ENGINE: {db_engine}", file=sys.stderr)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
