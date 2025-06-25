@@ -163,7 +163,10 @@ STATICFILES_DIRS = [
 
 # Enable WhiteNoise storage for static files
 if IS_PRODUCTION:
+    WHITENOISE_ALLOW_ALL_ORIGINS = True
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # Add this line to serve media files (not recommended for large files)
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 # Media files (Videos, Images, etc)
 MEDIA_URL = '/media/'
