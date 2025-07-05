@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'storages',  # Add django-storages for S3
     'myapp', # Add your app here
 ]
 
@@ -103,22 +104,60 @@ USE_I18N = True
 
 USE_TZ = True
 
+# AWS S3 Configuration
+USE_S3 = os.environ.get('USE_S3', 'False') == 'True'
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
-STATIC_URL = '/static/'
-
-# The directory where collectstatic will place files for production.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Directories where Django will look for static files.
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'myapp/static'),
-]
-
-# Enable WhiteNoise to serve static files in production
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if USE_S3:
+    # AWS Settings
+    AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = 'public-read'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_LOCATION = 'static'
+    AWS_QUERYSTRING_AUTH = False
+    AWS_HEADERS = {
+        'Access-Control-Allow-Origin': '*',
+    }
+    
+    # S3 Static settings
+    STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    
+    # S3 Media settings
+    MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    
+    # S3 Public Media settings
+    PUBLIC_MEDIA_LOCATION = 'media/public'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'myproject.storage_backends.PublicMediaStorage'
+    
+    # S3 Private Media settings
+    PRIVATE_MEDIA_LOCATION = 'media/private'
+    PRIVATE_FILE_STORAGE = 'myproject.storage_backends.PrivateMediaStorage'
+    
+else:
+    # Static files (CSS, JavaScript, Images)
+    # https://docs.djangoproject.com/en/5.0/howto/static-files/
+    STATIC_URL = '/static/'
+    # The directory where collectstatic will place files for production.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    # Directories where Django will look for static files.
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'myapp/static'),
+    ]
+    # Enable WhiteNoise to serve static files in production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    
+    # Media files
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -131,6 +170,6 @@ print(f"DEBUG: {DEBUG}", file=sys.stderr)
 print(f"ALLOWED_HOSTS: {ALLOWED_HOSTS}", file=sys.stderr)
 db_engine = DATABASES['default']['ENGINE']
 print(f"DATABASE ENGINE: {db_engine}", file=sys.stderr)
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+print(f"USE_S3: {USE_S3}", file=sys.stderr)
+if USE_S3:
+    print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}", file=sys.stderr)
