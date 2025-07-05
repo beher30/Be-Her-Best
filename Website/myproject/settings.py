@@ -122,39 +122,26 @@ if USE_S3:
     AWS_HEADERS = {
         'Access-Control-Allow-Origin': '*',
     }
-    
-    # S3 Static settings
-    STATIC_LOCATION = 'static'
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+
+    # S3 Static files
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
     STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    # S3 Media settings
-    MEDIA_LOCATION = 'media'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIA_LOCATION}/'
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    # S3 Public Media settings
-    PUBLIC_MEDIA_LOCATION = 'media/public'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+
+    # S3 Media files (user uploads)
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/public/'
     DEFAULT_FILE_STORAGE = 'myproject.storage_backends.PublicMediaStorage'
-    
-    # S3 Private Media settings
-    PRIVATE_MEDIA_LOCATION = 'media/private'
+    # If you want to use PrivateMediaStorage for some fields, set storage=... in the model field
     PRIVATE_FILE_STORAGE = 'myproject.storage_backends.PrivateMediaStorage'
-    
+
 else:
     # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/5.0/howto/static-files/
     STATIC_URL = '/static/'
-    # The directory where collectstatic will place files for production.
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # Directories where Django will look for static files.
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'myapp/static'),
     ]
-    # Enable WhiteNoise to serve static files in production
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    
+
     # Media files
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
