@@ -160,3 +160,6 @@ print(f"DATABASE ENGINE: {db_engine}", file=sys.stderr)
 print(f"USE_S3: {USE_S3}", file=sys.stderr)
 if USE_S3:
     print(f"AWS_STORAGE_BUCKET_NAME: {AWS_STORAGE_BUCKET_NAME}", file=sys.stderr)
+
+import django.core.files.storage
+print("Current storage backend:", type(django.core.files.storage.default_storage))
